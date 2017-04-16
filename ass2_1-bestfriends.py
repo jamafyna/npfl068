@@ -10,8 +10,8 @@ sin=sys.stdin
 sout=sys.stdout 
 
 
-DIST=5 # the distance between 2 words
-LOW=1 # the number for disregarding: if word appears less than LOW times  
+DIST=50 # the distance between 2 words
+LOW=10 # the number for disregarding: if word appears less than LOW times  
 
 
 
@@ -19,7 +19,7 @@ def getPMI(a,b,P_ij,P_i):
         if (a,b) not in P_ij: 
             print("debug 0")
             return 0
-        else: return math.log(P_ij[a,b]/(P_i[a]*P_i[b]))
+        else: return math.log(P_ij[a,b]/(P_i[a]*P_i[b]),2)
         
 
 f=open(sys.argv[1],encoding="iso-8859-2",mode='rt')
@@ -32,7 +32,9 @@ bigramcount=wordcount-1
 Pi={w : wordsuniq[w]/wordcount for w in wordsuniq} # Pi ... probability P(i)
 Pij={u : uniqbigrams[u]/bigramcount for u in uniqbigrams} # Pij ... joint probability  P(i,j), j is immediately after the word i
 
-I=col.Counter({(u,v):math.log(Pij[u,v]/(Pi[u]*Pi[v])) for (u,v) in uniqbigrams if u not in wn10 and v not in wn10})
+#I=col.Counter({(u,v):math.log(Pij[u,v]/(Pi[u]*Pi[v]),2) for (u,v) in uniqbigrams if u not in wn10 and v not in wn10})
+I=col.Counter({(u,v):math.log(Pij[u,v]/(Pi[u]*Pi[v]),2) for (u,v) in uniqbigrams if wordsuniq[u]>=LOW  and wordsuniq[v]>=LOW})
+I2=col.Counter({(u,v):getPMI(u,v,Pij,Pi) for (u,v) in uniqbigrams if u not in wn10 and v not in wn10})
 
 print(I.most_common(20))
 print(I.most_common(-20)) #nevyžaduje, ale je fajn
