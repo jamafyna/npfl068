@@ -34,7 +34,7 @@ Pij={u : uniqbigrams[u]/bigramcount for u in uniqbigrams} # Pij ... joint probab
 
 #I=col.Counter({(u,v):math.log(Pij[u,v]/(Pi[u]*Pi[v]),2) for (u,v) in uniqbigrams if u not in wn10 and v not in wn10})
 I=col.Counter({(u,v):math.log(Pij[u,v]/(Pi[u]*Pi[v]),2) for (u,v) in uniqbigrams if wordsuniq[u]>=LOW  and wordsuniq[v]>=LOW})
-I2=col.Counter({(u,v):getPMI(u,v,Pij,Pi) for (u,v) in uniqbigrams if u not in wn10 and v not in wn10})
+#I2=col.Counter({(u,v):getPMI(u,v,Pij,Pi) for (u,v) in uniqbigrams if u not in wn10 and v not in wn10})
 
 print(I.most_common(20))
 print(I.most_common(-20)) #nevyžaduje, ale je fajn
@@ -45,7 +45,7 @@ print(I.most_common(-20)) #nevyžaduje, ale je fajn
 Idis=col.Counter()
 distant=col.Counter()
 for i in range (0,wordcount-1):
-    for j in range (1,DIST):
+    for j in range (1,DIST+1):
         if(i-j>=0):
             u=wordsdata[i-j]
             w=wordsdata[i]
@@ -62,7 +62,7 @@ Idis=col.Counter({(u,v):getPMI(u,v,Pdij,Pi) for (u,v) in distant if u not in wn1
 I2dis=col.Counter()
 distant2=col.Counter()
 for i in range (0,wordcount-1):
-    for j in range (1,DIST):
+    for j in range (1,DIST+1):
         if(i-j>=0):
             u=wordsdata[i-j]
             w=wordsdata[i]
