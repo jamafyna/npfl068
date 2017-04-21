@@ -44,7 +44,7 @@ print(I.most_common(-20)) #nevyžaduje, ale je fajn
 
 Idis=col.Counter()
 distant=col.Counter()
-for i in range (0,wordcount-1):
+for i in range (0,wordcount):#měla jsem wordcount-1, ale to nedává smysl!
     for j in range (1,DIST+1):
         if(i-j>=0):
             u=wordsdata[i-j]
@@ -55,13 +55,13 @@ for i in range (0,wordcount-1):
 totalcount=sum(distant.values())
 Pdij={pair : distant[pair]/totalcount for pair in distant} # probability of distant words
 Idis=col.Counter({(u,v):getPMI(u,v,Pdij,Pi) for (u,v) in distant if u not in wn10 and v not in  wn10})
-
+#pozor na to, jestli mám správně Pi - jestli i ta se nemusí upravit, protože se  krajní slova používají jinak
 #----2.varianta, pro to, kdy beru oba směry explicitně
 
 # z hlediska psti a dal je jedno, zda pouzivame toto nebo vyse, protože v tomto bude každé slovo 2x, ale i 2x věší počet slov, tedy stejné výsledky
 I2dis=col.Counter()
 distant2=col.Counter()
-for i in range (0,wordcount-1):
+for i in range (0,wordcount):#měla jsem wordcount-1, ale to nedává smysl!
     for j in range (1,DIST+1):
         if(i-j>=0):
             u=wordsdata[i-j]
