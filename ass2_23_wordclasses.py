@@ -4,6 +4,7 @@ import icu
 import math
 import random
 import datetime
+import itertools
 
 sin=sys.stdin
 sout=sys.stdout 
@@ -60,26 +61,40 @@ def getlossI(d,e):
         """
         #print(d,",",e," : ")
 #sum of loss MI of right neighbors of d, e
-        s1=sum([(bi_class[d,s]+bi_class[e,s])*math.log((bi_class[d,s]+bi_class[e,s])*N/((classes[d]+classes[e])*classes[s]),2) for s in set(rightneib[d]+rightneib[e]) if (s!=d and s!=e)])
+        s1=sum([(bi_class[d,s]+bi_class[e,s])*math.log((bi_class[d,s]+bi_class[e,s])*N/((classes[d]+classes[e])*classes[s]),2)for s in set(rightneib[d]+rightneib[e]) if (s!=d and s!=e)])
+        s1md=sum([(bi_class[d,s])*math.log((bi_class[d,s])*N/(classes[d]*classes[s]),2)for s in rightneib[d] if s!=d])
+        s1me=sum([(bi_class[e,s])*math.log((bi_class[e,s])*N/(classes[e]*classes[s]),2) for s in rightneib[e] if s!=e])
+         
 #sum of loss MI of left neighbors of d, e
         s2=sum([(bi_class[s,d]+bi_class[s,e])*math.log((bi_class[s,d]+bi_class[s,e])*N/((classes[d]+classes[e])*classes[s]),2) for s in set(leftneib[d]+leftneib[e]) if (s!=d and s!=e)])
+        s2md=sum([(bi_class[s,d])*math.log((bi_class[s,d])*N/(classes[d]*classes[s]),2) for s in leftneib[d] if s!=d])
+        s2me=sum([(bi_class[s,e])*math.log(bi_class[s,e]*N/(classes[e]*classes[s]),2) for s in leftneib[e] if s!=e])
+
 # due to s=d or s=e
+        #  return sum([bi_class[d,e]*math.log(bi_class[d,e]*N/(classes[d]*classes[e]),2) for (d,e) in bi_class])/N
+
         caa=bi_class[e,e]+bi_class[e,d]+bi_class[d,e]+bi_class[d,d]
         if caa!=0:
                 ca=classes[e]+classes[d]
                 s3=caa*math.log((caa*N)/(ca**2),2)
         else:
                 s3=0
-        return (s1+s2+s3)/N
+        s3m=0
+        if bi_class[d,d]!=0:
+                s3m+=bi_class[d,d]*math.log(bi_class[d,d]*N/(classes[d]**2),2)
+        if bi_class[e,e]!=0:
+                s3m+=bi_class[e,e]*math.log(bi_class[e,e]*N/(classes[e]**2),2)
+
+        return (s1+s2+s3-s1me-s1md-s2me-s2md-s3m)/N
         
 
 def getclassestomerge():
         c1=[]
         c2=[]
         minI=float("inf")
-        for d in classes_relevant:
-            for e in classes_relevant: 
-                temp=getlossI(d,e) 
+        for (d,e) in itertools.combinations_with_replacement(classes_relevant,2):
+                temp=getlossI(d,e)
+                if (d=="case" and e=='subject'):print("DEBUG:",d,e,temp) 
                 if minI>temp: 
                     minI=temp
                     c1=d
