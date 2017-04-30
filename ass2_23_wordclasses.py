@@ -85,14 +85,14 @@ def getlossI(d,e):
         if bi_class[e,e]!=0:
                 s3m+=bi_class[e,e]*math.log(bi_class[e,e]*N/(classes[e]**2),2)
 
-        return (s1+s2+s3-s1me-s1md-s2me-s2md-s3m)/N
+        return (-s1-s2-s3+s1me+s1md+s2me+s2md+s3m)/N
         
 
 def getclassestomerge():
         c1=[]
         c2=[]
         minI=float("inf")
-        for (d,e) in itertools.combinations_with_replacement(classes_relevant,2):
+        for (d,e) in itertools.combinations(classes_relevant,2):
                 temp=getlossI(d,e)
                 if (d=="case" and e=='subject'):print("DEBUG:",d,e,temp) 
                 if minI>temp: 
