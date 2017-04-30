@@ -58,48 +58,81 @@ def getlossI(d,e):
         """
         Returns loss MI if d and e would be merged
         """
-        new_count=classcount-1
-        new_bi_count=0
+        #print(d,",",e," : ")
 #sum of loss MI of right neighbors of d, e
-        s1=sum([(bi_class(d,s)+bi_class(e,s))*math.log((bi_class(d,s)+bi_class(e,s))*new_count**2)/(new_bi_count*(classes(d)+classes(e))*classes(s),2) for s in rightneib(a)+rightneib(b) if (s!=d and s!=e)])
+        s1=sum([(bi_class[d,s]+bi_class[e,s])*math.log((bi_class[d,s]+bi_class[e,s])*N/((classes[d]+classes[e])*classes[s]),2) for s in set(rightneib[d]+rightneib[e]) if (s!=d and s!=e)])
 #sum of loss MI of left neighbors of d, e
-        s2=sum([(bi_class(s,d)+bi_class(s,e))*math.log((bi_class(s,d)+bi_class(s,e))*new_count**2)/(new_bi_count*(classes(d)+classes(e))*classes(s),2) for s in leftneib(a)+leftneib(b) if (s!=d and s!=e)])
+        s2=sum([(bi_class[s,d]+bi_class[s,e])*math.log((bi_class[s,d]+bi_class[s,e])*N/((classes[d]+classes[e])*classes[s]),2) for s in set(leftneib[d]+leftneib[e]) if (s!=d and s!=e)])
 # due to s=d or s=e
-        caa=bi_class(e,e)+bi_class(e,d)+bi_class(d,e)+bi_class(d,d)
-        ca=classes(e)+classes(d)
-        s3=caa*math.log(caa*(new_count**2)/((ca**2)*new_bi_count),2)
-        return (s1+s2+s3)/new_bi_count
+        caa=bi_class[e,e]+bi_class[e,d]+bi_class[d,e]+bi_class[d,d]
+        if caa!=0:
+                ca=classes[e]+classes[d]
+                s3=caa*math.log((caa*N)/(ca**2),2)
+        else:
+                s3=0
+        return (s1+s2+s3)/N
         
 
-def gettwoclasses():
+def getclassestomerge():
         c1=[]
         c2=[]
         minI=float("inf")
-        for d in classes:
-            for e in classes: 
+        for d in classes_relevant:
+            for e in classes_relevant: 
                 temp=getlossI(d,e) 
                 if minI>temp: 
                     minI=temp
                     c1=d
                     c2=e
+        print("DEBUG: minimal loss:",minI," classes: ",c1," ",c2)
         return (c1,c2)
 
 def mergetwoclasses(d,e):
         #merge e into d
-        for l in leftneib(e):
-            bi_class[l,d]+=bi_class[l,e]
-        for r in rightneib(e):
-            bi_class[d,r]+=bi_class[e,r]
-#možná opět PIE
+        print("DEBUG: d: ",d," e: ",e)
+# merge bigrams of classes
+        for l in leftneib[e]:
+            if l!=e: 
+                bi_class[l,d]+=bi_class[l,e]
+        for r in rightneib[e]:
+            if r!=e:bi_class[d,r]+=bi_class[e,r]
+        bi_class[d,d]+=bi_class[e,e]
+# merge classes counts
         classes[d]+=classes[e]
-        rightneib[d]+=set(rightneib[d]+rightneib[e])
-        leftneib[d]+=set(leftneib[d]+leftneib[e])
-        # remove
-        for r in 
+        rightneibtemp=list(set(rightneib[d]+rightneib[e]))
+        if e in rightneibtemp:rightneibtemp.remove(e)
 
-        return
+        #leftneibtemp=list(set(leftneib[d]+leftneib[e])^{e})
+        #rightneibtemp=list(set(rightneib[d]+rightneib[e])^{e})
+        leftneibtemp=list(set(leftneib[d]+leftneib[e]))
+        if e in leftneibtemp: leftneibtemp.remove(e)
+        leftn=leftneib[e].copy()
+        rightn=rightneib[e].copy()
+        for l in leftn: #remove e from rightneib[l], 
+                if l!=d and l!=e and l in rightneib: 
+                    if(e not in rightneib[l]):
+                        print("DEBUG:ERROR, e not in rightneib, e:",e)
+                    else: rightneib[l].remove(e) #the condition is necessary because words with count <10 can be neighbors of something but cannot have neighbors
+                    if d not in rightneib[l]: rightneib[l]+=[d]
 
+        for r in rightn: #remove e from leftneib[r], 
+                if r!=d and r!=e and r in leftneib:
+                     if e not in leftneib[r]:
+                         print("!!!!!!!!!!!!!!!!!!!DEBUG,ERROR, e not in leftneib, e:",e)
+                     else:leftneib[r].remove(e)
+                     if d not in leftneib[r]: leftneib[r]+=[d]
+                    # leftneib[r].union([d])
+        rightneib[d]=rightneibtemp
+        leftneib[d]=leftneibtemp
+        del leftneib[e] #možná není potřeba, časem ověřit
+        del rightneib[e] #možná není potřeba, časem ověřit
+        Hist.append(d+"+"+e+"->"+d)
+        print(d+"+"+e+"->"+d)
+        classes_relevant.remove(e) 
+        return 0
 
+def getI():
+        return sum([bi_class[d,e]*math.log(bi_class[d,e]*N/(classes[d]*classes[e]),2) for (d,e) in bi_class])/N
 
 
 
@@ -111,25 +144,69 @@ data_words=[word for (word,tag) in data]
 data_tags=[tag for (word,tag) in data]
 data=[] # for gc
 
-wordsall=data_words[:8000]
+
+# ----------------------- initialization -----------------------------------
+#data with start token
+wordsall=["<start>"]+data_words[:8000]
+N=len(wordsall)-1
+classes=col.Counter(wordsall) # initialization, starts with each word in its own class
+bi_class=col.Counter([b for b in zip(wordsall[:-1],wordsall[1:])])
+classes_relevant=[c for c in classes if classes[c]>=10]
+leftneib={}
+rightneib={}
+#for c in classes_relevant:
+for c in classes:
+    leftneib[c]=[a for (a,b) in bi_class if b==c]
+    rightneib[c]=[b for (a,b) in bi_class if a==c]
+
+
+Hist=[] # array of history
+#uniqwords=col.Counter(wordsall) # uniqwords from the set of first 8000 words
+
+print(getI())
+(c1,c2)=getclassestomerge()
+mergetwoclasses(c1,c2)
+
+
+
+while len(classes_relevant)>1:
+        (c1,c2)=getclassestomerge()
+        mergetwoclasses(c1,c2)
+ 
+      #  print("MI:", getI())
+
+# merge by správně měla zaměnit d za e, jinak chyba, protože se spravně nezaktualizuji sousede. Akorát, když se to udělá, tak hlásí r.64 domain math error
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# --------------------puvodne fungovalo
+wordsall=["<start>"]+data_words[:8000]
 bigramsall=[b for b in zip(wordsall[:-1],wordsall[1:])]
 uniqbigrams=col.Counter(bigramsall) # bigrams only from given words, not added start and end boundaries
 uniqwords=col.Counter(wordsall) # uniqwords from the set of first 8000 words
+print(sum([uniqbigrams[d,e]/N*math.log(uniqbigrams[d,e]*N/(uniqwords[d]*uniqwords[e]),2)  for (d,e) in uniqbigrams]))
 
-relevant_words=[w for w in data_words[:8000] if uniqwords[w]>=10]
-word_class=[(w,w) for w in relevant_words] #initialization fo word-class map
-
-classes=col.Counter(relevant_words) # initialization, starts with each word in its own class
-
-#nize jeste nedorozmysleno
-w10=[w for w in wordsall if uniqwords[w]>=10]
-bi_class=col.Counter([(u,v) for (u,v) in uniqbigrams if uniqwords[u]>=10 and uniqwords[v]>=10])
-
+#---------------------------------------
 #
 #pp2ch=
 
 N=len(wordsall)
 print(sum([uniqbigrams[d,e]/(N-1)*math.log(uniqbigrams[d,e]*N*N/((N-1)*uniqwords[d]*uniqwords[e]),2)  for (d,e) in uniqbigrams]))
+print(sum([uniqbigrams[d,e]/N*math.log(uniqbigrams[d,e]*N/(uniqwords[d]*uniqwords[e]),2)  for (d,e) in uniqbigrams]))
 print(sum([uniqbigrams[d,e]/(N-1)*math.log(uniqbigrams[d,e]*N*N/((N-1)*uniqwords[d]*uniqwords[e]),2)  for (d,e) in uniqbigrams if (uniqwords[d]>=10 and uniqwords[e]>=10)]))
 
 # ------------------u------initialization -----------------------------
