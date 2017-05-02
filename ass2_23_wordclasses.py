@@ -9,64 +9,33 @@ import itertools
 sin=sys.stdin
 sout=sys.stdout 
 
+SEPl="SEP["
+SEPr="]SEP"
+SEPi="SE,EP"
 
 
-# otázka: kde se mi projeví pravděpodobnostní rozdělení (tj. když mám brát v potaz i slova mající nižší výskyt než 10, ale když psi, se kterými pracuji, jsou jen pro classes?)
-
-
-
-
-
-def getMI(bigC):
-        """
-        returns I(D,E)
-        input: bigC - bigrams of classes, ideally Counter
-        """
-        return sum([p(d,e) * math.log(p(d,e)/(p(d)*p(e)),2) for (d,e) in bigC])
-       # p bude nejspíš c_ij a cl_i,cr_i 
-
-
-
-# co chci:
-# spočítat MI = sum([ c(d,e)/(N-1) * math.log((c(d,e)/(N-1))/(c(d)*c(e)/(N*N)),2)  for (d,e) in classes]) - zjistit, jestli je vždy N nebo jestli jde o aktuální počet tříd a aktuální počet bigramů tříd
-# algoritmus:
-# 1. inicializace: každé slovo ve  vlastní třídě
-# 2. dokud není jen 1 třída (s výskytem >=10) tak opakuj:
-# 3. najdi 2 třídy k,l, které sloučíš: zkus je sloučit + spočti maximální MI (= spočti minimální změnu MI)
-# 4. sluč k,l
-# 
-# hodila by se datová struktura, ve které budu mít zahešované/uložené dvojice tříd, které se vyskytují po sobě a která vrací v konstatním čísle odpověď na dotaz q(c1,c2)  a zároveň vrací konstantně všechny prvky q(c1,*) a q(*,c2) - vždy po sloučení tříd by šlo zaktualizovat jen příslušné "řádky" a "sloupce"
-
-
-# chytrá implementace:
-def getmergedI(d,e,s):
-        return
 def getpartMI(a,b,c,N):
+        """
+        Compute one element of MI, only help function
+        """
         return a*math.log(a*N/(b*c),2)
 
 def getlossI(d,e):
         """
         Returns loss MI if d and e would be merged
         """
-        #print(d,",",e," : ")
 # s1 ... sum of new loss  MI of right neighbors if d, e  will be  merged
-      #  s1=sum([(bi_class[d,s]+bi_class[e,s])*math.log((bi_class[d,s]+bi_class[e,s])*N/((classes[d]+classes[e])*classes[s]),2)for s in rightneib[d].union(rightneib[e]) if (s!=d and s!=e)])
         s1=sum([getpartMI((bi_class[d,s]+bi_class[e,s]),(classes[d]+classes[e]),classes[s],N) for s in rightneib[d].union(rightneib[e]) if (s!=d and s!=e)])
 
-# s1md, s1mr ... previous elements (right neighbors of d and e) of MI, if d, e will be merged
-        #s1md=sum([(bi_class[d,s])*math.log((bi_class[d,s])*N/(classes[d]*classes[s]),2)for s in rightneib[d] if s!=d])
         s1md=sum([getpartMI(bi_class[d,s],classes[d],classes[s],N) for s in rightneib[d] if s!=d])
-       # s1me=sum([(bi_class[e,s])*math.log((bi_class[e,s])*N/(classes[e]*classes[s]),2) for s in rightneib[e] if s!=e])
          
         s1me=sum([getpartMI(bi_class[e,s],classes[e],classes[s],N) for s in rightneib[e] if s!=e])
 # sum of loss MI of left neighbors of d, e if d and e will be merged
-        #s2=sum([(bi_class[s,d]+bi_class[s,e])*math.log((bi_class[s,d]+bi_class[s,e])*N/((classes[d]+classes[e])*classes[s]),2) for s in leftneib[d].union(leftneib[e]) if (s!=d and s!=e)])
         s2=sum([getpartMI(bi_class[s,d]+bi_class[s,e],(classes[d]+classes[e]),classes[s],N) for s in leftneib[d].union(leftneib[e]) if (s!=d and s!=e)])
 
 # s2md, s2mr ... previous elements (left neighbors of d and e) of MI, if d, e will be merged
 
         s2md=sum([getpartMI(bi_class[s,d],classes[d],classes[s],N) for s in leftneib[d] if s!=d])
-       # s2me=sum([(bi_class[s,e])*math.log(bi_class[s,e]*N/(classes[e]*classes[s]),2) for s in leftneib[e] if s!=e])
         s2me=sum([getpartMI(bi_class[s,e],classes[e],classes[s],N) for s in leftneib[e] if s!=e])
 
         # due to s=d or s=e
@@ -131,18 +100,16 @@ def mergetwoclasses(d,e,minI):
         for l in leftn: #remove e from rightneib[l], 
                 if l!=d and l!=e and l in rightneib: 
                     rightneib[l].remove(e) #the condition is necessary because words with count <10 can be neighbors of something but cannot have neighbors
-                    #if d not in rightneib[l]: rightneib[l]+=[d]
                     rightneib[l]=rightneib[l].union([d])
         for r in rightn: #remove e from leftneib[r], 
                 if r!=d and r!=e and r in leftneib:
                      leftneib[r].remove(e)
-                    # if d not in leftneib[r]: leftneib[r]+=[d]
                      leftneib[r]=leftneib[r].union([d])
         rightneib[d]=rightneibtemp
         leftneib[d]=leftneibtemp
         del leftneib[e] #možná není potřeba, časem ověřit
         del rightneib[e] #možná není potřeba, časem ověřit
-        Hist.append("Minimal loss: "+str(minI)+"\t "+d+" \t"+e+" \t>\t "+d+" \t "+"( "+d+" , "+e+" )")
+        Hist.append("Minimal loss: "+str(minI)+"\t "+d+" \t"+e+" \t>\t "+d+" \t "+SEPl+" "+d+" "+SEPi+" "+e+" "+SEPr)
         print(d+"+"+e+"->"+d)
         classes_relevant.remove(e) 
         return 0
@@ -157,37 +124,32 @@ def processHistory(History,remClasses={}):
                 for j in range(i+1,len(Hist)):
                         temp=History[j]
                         History[j]=temp.replace(" "+h[4].strip()+" "," "+h[5].strip()+" ")
-                for c in remClasses:
-                    if c==h[4]: c=h[5]
+                for c in remClasses: #DEBUG:toto chce ještě zlepšit!!!!!!!!!!
+                    if c==h[4].strip(): 
+                        c=h[5]
+                        print("DEBUG:true in remClasses, c:",c)
         for i in range(0,len(History)):
             t=History[i].split('\t')
-            History[i]=t[1]+'\t'+t[2]+'\t'+'-->'+'\t'+t[5]
-            print(t[1]+'\t'+t[2]+'\t'+'-->'+'\t'+t[5])
+            u5=t[5].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,",") # back to readable form
+            u1=t[1].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,",") # back to readable form
+            u2=t[2].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,",") # back to readable form
+           # u=u.replace(SEPr,")")
+           # u=u.replace(SEPi,",")
+            History[i]=u1+'\t'+u2+'\t'+'-->'+'\t'+u5
+            print(u1+'\t'+u2+'\t'+'-->'+'\t'+u5)
+        for c in remClasses:
+            c=c.replace(SEPr,"")
+            c=c.replace(SEPl,"")
+            c=c.replace(SEPi,"")
+            print(c)
         return (History,remClasses)
 
 
 def getI():
         return sum([bi_class[d,e]*math.log(bi_class[d,e]*N/(classes[d]*classes[e]),2) for (d,e) in bi_class])/N
-def doInitialization():
-        # data with start token
-        if task=="1": wordsall=["<start>"]+data_words[:8000]
-        else:wordsall=["<start>"]+data_tags
-        N=len(wordsall)-1
-        classes=col.Counter(wordsall) # initialization, starts with each word in its own class
-        bi_class=col.Counter([b for b in zip(wordsall[:-1],wordsall[1:])])
-        if task=="1":classes_relevant=[c for c in classes if classes[c]>=10]
-        else: classes_relevant=[c for c in classes if classes[c]>=5]
-
-        leftneib={}
-        rightneib={}
-        for c in classes_relevant:
-        #for c in classes:
-                leftneib[c]={a for (a,b) in bi_class if b==c}
-                rightneib[c]={b for (a,b) in bi_class if a==c}
 
 
-        Hist=[] # array of history
-        return
+# ---------------------- program --------------------------------------------
 
 if(len(sys.argv)!=4 or (sys.argv[2]!="1" and sys.argv[2]!="2") or not sys.argv[3].isdigit()): 
     sys.exit('Not correct arguments, please run with 3 arguments: input-file, number (1=task with words, 2=task with tags), count of resulting classes (1 for full hierarchy).')
@@ -195,7 +157,6 @@ f=open(sys.argv[1],encoding="iso-8859-2",mode='rt')
 task=sys.argv[2]
 finalcount=int(sys.argv[3])
 data=[l.split('/',1) for l in f.read().splitlines()]  # items in format: word,speech-tag which can contains '/'
-#for (word,tag) in data...
 
 data_words=[word for (word,tag) in data]
 data_tags=[tag for (word,tag) in data]
@@ -203,26 +164,26 @@ data=[] # for gc
 
 
 # ----------------------- initialization -----------------------------------
-# global wordsall, N, classes, bi_class, classes_relevant, leftneib, rightneib, Hist
-# doInitialization()
-# because I couldnt use correctly global variables, there is the same text as in doInitialization
 
 # data with start token
 if task=="1": wordsall=["<start>"]+data_words[:8000]
-else:wordsall=["<start>"]+data_tags
+else: wordsall=["<start>"]+data_tags
 N=len(wordsall)-1
-classes=col.Counter(wordsall) # initialization, starts with each word in its own class
-bi_class=col.Counter([b for b in zip(wordsall[:-1],wordsall[1:])])
-classes_relevant=[c for c in classes if classes[c]>=10]
-leftneib={}
-rightneib={}
-for c in classes_relevant:
-#for c in classes:
+classes=col.Counter(wordsall) # initialization, starts with each word in its own class, all classes, includes also the not frequent oney
+
+bi_class=col.Counter([b for b in zip(wordsall[:-1],wordsall[1:])]) # all bigrams of classes in data, with count of their occurancy
+
+classes_relevant=[c for c in classes if classes[c]>=10] # classes_relevant...set of classes which can be merged (occures more than 10)
+
+leftneib={} # left neighbors of a given class, hashtable
+rightneib={} # right neighbors of a given class, hashtable
+for c in classes_relevant: # can be also: for c in classes, but it is necessary
       leftneib[c]={a for (a,b) in bi_class if b==c}
       rightneib[c]={b for (a,b) in bi_class if a==c}
 
 Hist=[] # array of history
 
+# --------------------computation -------------------------------------------
 
 print("MI of the whole text: ",getI())
 
