@@ -57,31 +57,53 @@
  }
 
 \begin{document}
-\section*{1. část úkolu - Entropy of a Text}
+\section*{1. část úkolu - Best Friends}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \noindent
 
 %\includegraphics{img-cz-chars.png}
+\section*{2. část úkolu - Word Classes}
 
-\subsection*{CZ---Messing words}
-S rostoucí pravděpodobností záměny slov klesá entropie, která se pohybuje v rozmezí asi 4,75 a 4,63. 
+K určení úplné hierarchie slov, resp. sloučení slov na 15 tříd, jsem použila algoritmus z přednášky. Místo maximalizace celé Mutual Information (MI) jsem použila minimalizaci ztráty MI oproti předchozímu kroku, tedy kostra algoritmu vypadala následovně: 
 
-S rostoucí pravděpodobností záměny rostl počet unikátních bigramů v textu a také bigramů vyskytujících se pouze jedenkrát.
-Dále klesl výskyt nejčetnějšího bigramu \uv{že}. Tento pokles by měl spíše snížit entropii, neboť bigram \uv{nove-slovo že} v původním textu nejspíše neexistoval (pokud je text spíše pravopisně správně), tedy je velká šance, že bude unikátní, obdobně \uv{~,~nove-slovo} bude s velkou pravděpodobností unikátní bigram, neboť \uv{nove-slovo} bude jedno slovo z  42826 slov. Zároveň prvních 20 nejčastějších slov původního textu tvoří asi čtvrtinu textu (55120 výskytů dohromady),jejich počet se zvyšující se pravděpodobností záměny klesá, což by mělo opět snížit entropii, neboť jde o interpunkční znaménka a předložky, tedy oba nové bigramy by měly být nejčastěji unikátní, což potvrzuje i celkový nárůst unikátních bigramů. Zvýšení průměrné délky slova také ukazuje, že se častěji nahradily předložky a interpunkční znaménka za delší slova (např. slova plnovýznamová).
-Oproti tomu se zvýší počet různých slov vyskytujících se bezprostředně po nějčastějších slovech, tato změna by měla entropii naopak drobně zvýšit. 
+\begin{itemize}
+\item[1.] Inicializace - každému slovu přiřadím svoji třídu
+\item[2.] Dokud nedostaneš požadovaný počet tříd (s výskytem alespoň 10x), opakuj:
 
-Celkově entropie nového textu klesla oproti původnímu textu, ale ne nijak prudce.
+        \begin{itemize}
+        \item[2.1.] Najdi třídy $d$, $e$ (z tříd s výskytem alespoň 10x), pro které je ztráta entropie minimální.
+        \item[2.2] Sluč třídy $d$, $e$ do jedné.
+        \end{itemize}
+\end{itemize}
+
+\subsection*{Implementace}
+Hlavní otázkou bylo, jak vhodně reprezentovat třídy, aby bylo nalezení dvou tříd ke sloučení a zároveň jejich sloučení rozumně rychlé. Zjistila jsem, že ideálně by se mi hodila datová struktura, ve které bych měla zahešované/uložené bigramy tříd, která vrací v konstatním čase odpověď, kolik daných bigramů $(c_1,c_2)$ se v textu vyskytuje, a která vrátí v konstantním čase odkaz na všechny bigramy $(c1,*),(*,c1)$ (těch může být až lineárně). Zároveň tato struktura by se měla rozumně rychle aktualizovat (kvůli provádění merge).
+
+Program jsem psala v jazyce Python3. Nechtěla jsem (nebavilo mě) přímo používat přesnou implementaci z přednášek, použila jsem tedy trochu jiné struktury, myšlenky ale zůstávají stejné. V programu jsem zejména využila hashtabulky vracející levé, resp. pravé, sousedy dané třídy a dvakrát CountTable uchovávající počet výskytů daných tříd, resp. bigramů tříd.  
+
+Program se spouští příkazem {\bf python3 ass2\_23\_wordclasses.py TEXT.ptg~1~param}, se třemi parametry, kde TEXT.ptg znamená text, který chceme zpracovat, ve formátu .ptg; 1 označuje, že spouštíme variantu pro slova a ne tagy; param značí počet zbývajících tříd, tedy 1 pro úplnou hierarchii slov a 15 pro sloučení do 15 tříd. 
+
+\subsection*{CZ}
+Při sloučení na 15 tříd mě zaujala třída skládající se ze spojek, tj. {\it  který, které, aby, ale, že}, obzvlášť že nejprve se sloučily třídy {\it který, které}. Tato třída vyšla hezky ukázkově. Naopak mě překvapilo, že čárka s tečkou zůstaly v samotných jednoprvkových třídách, automaticky bych čekala, že se sloučí, ale zde je možnost, že je rozdílnost dána velkým počátečním písmenem po tečce. Podobným překvapením je samostatná třída se spojkou {\it a}, zatímco spojka {\it i} byla sloučena poměrně brzy. Důvodem může být jiná četnost výskytu. Dále mi přijde pěkné průběžné sloučení tříd {\it byl + jsou, musí + bude, (za, u)+ do} do jedné.
+
+
+\subsection*{EN}
+
+Přijdou mi pěkná a výstižná sloučení tříd {\it may, cannot}, hned jako druhé slučování,  a dále  {\it must + can, is + are, if + when, most + many, would + will}.
+
+Zároveň mi přišlo zajímavé, že slučování tříd poměrně pěkně zachovává slovní druhy, např. při slučování do 15 tříd je třída 7 složena  z podstatných jmen, veškerá přídavná jména jsou ve třídě 3, třída 8 je složena z předložek.
+
+Celkově mi přišlo zajímavé, že slova s velkým počátečním písmenem na začátku mají tendenci slučovat se k sobě, což může být způsobeno téměř jistou tečkou (či jiným méně častým interpunkčním znaménkem) před těmito slovy.
+
+I v anglickém textu zůstaly tečce a čárce jejich vlastní třídy při slučování do 15 tříd, což může být způsobeno tím, že kontext kolem nich je různorodý a v souvislosti s tím, že slova s velkým počátečním písmenem se shlukují často k sobě, a tedy není výhodné ani sloučit tečku a čárku do jedné třídy. Nevhodnost sloučení tečky a čárky potvrzuje i skutečnost, že se do společné třídy dostanou až při posledním slučování, tedy sloučením všech posledních dvou tříd do jedné. Tato skutečnost mě velmi překvapila, protože před výsledkami (a zamyšlením) bych intuitivně čekala, že se velmi brzy sloučí do jedné třídy.
+
+\
+
+\
 
 
 
-\subsection*{EN---Messing words}
-S rostoucí pravděpodobností záměny rostla entropie. Tedy náhodná záměna slov zhoršila předpovídatelnost textu. Velmi se snížil počet slov vyskytujících se pouze jedenkrát (pro původní text: 3811, pro text se změnou 10 \%: 417), což mohlo zvýšit entropii, neboť pokud se dané slovo vyskytuje pouze jednou, je jednoznačné přiřazení následníka. Stejně jako v češtině se zvýšil počet různých slov vyskytujících se bezprostředně po nejčastějších slovech.
-
-
-\subsection*{CZ, EN --- Messing chars}
-S rostoucí pravděpodobností záměny znaku klesá entropie.
-Záměnou znaku vzniká často nové slovo, obzvlášť ve vícepísmenných slovech, tedy vznikne řada nových slov, z nichž jeden bigram přispěje do entropie nulou. Nově vzniklý text bude snáze předpovídatelný.  
 
 \
 
@@ -92,27 +114,7 @@ Záměnou znaku vzniká často nové slovo, obzvlášť ve vícepísmenných slo
 
 
 
-\
 
-\
-
-\
-
-
-
-
-
-
-\begin{multicols}{2}
-\obrazek{img-cz-words.png}{0.5}
-\columnbreak
-\obrazek{img-en-words.png}{0.5}
-\end{multicols}
-\begin{multicols}{2}
-\obrazek{img-cz-chars.png}{0.45}
-\columnbreak
-\obrazek{img-en-chars.png}{0.45}
-\end{multicols}
 
 
 \subsection*{Porovnání obou textů}
@@ -137,21 +139,6 @@ Výsledky vypisuje program first.py na standardní výstup, spouštět s paramet
 Nejprve jsem určila parametry $l_0, l_1, l_2, l_3$ pomocí EM algoritmu, za požadovanou přesnost jsem zvolila 0.001. Em algoritmus potřeboval pro dosažení požadované přesnosti 6 iterací pro český text a 9 iterací pro anglický text.
 
 Při určení vyhlazovacích parametrů z trénovacích dat vyšel třetí parametr (parametr odpovídající trigramům) 1 a zbylé 0. Což je očekávaný výsledek, jelikož algoritmus se snaží minimalizovat entropii nového pravděpodobnostního rozdělení, tato entropie však bude nejmenší, pokud nové pravděpodobnostní rozdělení bude odpovídat pravěpodobnostnímu rozdělení pro trigramy, tedy když $\lambda_3=1$. Z tohoto důvodu musíme na určení parametrů používat jiná data než trénovací.
-
-
-\begin{multicols}{2}
-\obrazek{img-cz-reduction.png}{0.5}
-\columnbreak
-\obrazek{img-en-reduction.png}{0.5}
-\end{multicols}
-\
-\obrazek{img-cz-scaling.png}{1}
-\obrazek{img-en-scaling.png}{1}
-Při škálování parametrů (grafy Scaling parameters) bylo v obou jazycích zjištěno, že se zvyšováním trigramového parametru roste křížová entropie, tedy tato změna není vhodná, dostali bychom horší model, než máme. Se snižováním trigramového parametru (grafy Reduction) sice nepatrně entropie klesá, tedy nově získané modely jsou lepší než ty původní, ale změna je velmi nepatrná (max. o~2~desetiny). To jen potvrzuje, že již máme poměrně vyhovující model.
-
-\obrazek{img-cz-coverage.png}{1}
-\obrazek{img-en-coverage.png}{1}
-
 
 \subsection*{Porovnání obou jazyků}
 Pro český text se dává nejvyšší váha unigramům (0.44). Bigramům a uniformnímu rozdělení se přiřazuje podobná váha (0.25), nejhorší jsou trigramy, jejichž váha je téměř zanedbatelná. Zatímco anglický text preferuje bigramy (0.5), poté unigramy (0.26), a dále preferuje trigramy před uniformním rozdělením. Důvodem bude to, že čeština obsahuje daleko více různých bigramů než angličtina a tedy češtině se vyplatí mít model sestavený spíše z unigramů než z bigramů, angličtině naopak. Dále v angličtině se bude vyskytovat méně různých trigramů než v češtině.

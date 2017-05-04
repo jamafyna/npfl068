@@ -113,10 +113,10 @@ def mergetwoclasses(d,e,minI):
 def processHistory(History,remClasses):
         """ Returns the another form of history --- the new class of classes a and b is named (a,b). If remClasses is given, returns also members of remaining classes.
         """
-        for i in range(0,len(History)-1):
+        for i in range(0,len(History)):
                 h=History[i].split('\t')
-                old=h[4] # item in History  has this form: [d+"\t"+e+"\t>\t"+d+"\t"+"("d+","+e")"], so h[4] is the more importent class (its name remains)
-                old=h[5] # the name of the new class which should be used instead of one of names of the classes
+                old=h[4] # item in History  has this form: ["Minloss"+'\t'+d+"\t"+e+"\t>\t"+d+"\t"+"("d+","+e")"], so h[4] is the more importent class (its name remains)
+                new=h[5] # the name of the new class which should be used instead of one of names of the classes
                 for j in range(i+1,len(History)):
                         temp=History[j]
                         History[j]=temp.replace(" "+h[4].strip()+" "," "+h[5].strip()+" ")
@@ -124,12 +124,15 @@ def processHistory(History,remClasses):
                     c=remClasses[j]# 
                     if (c.strip())==(h[4].strip()): 
                         remClasses[j]=h[5].strip()
+        # the last substitution, only for classes
+      
         for i in range(0,len(History)):
             t=History[i].split('\t')
             u5=t[5].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,"+") # back to readable form
             u1=t[1].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,"+") # back to readable form
             u2=t[2].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,"+") # back to readable form
-            History[i]=u1+'\t'+u2+'\t'+'-->'+'\t'+u5
+            #History[i]=t[0]+":\t"+u1+'\t'+u2+'\t'+'-->'+'\t'+u5
+            History[i]=t[0]+":\t"+u5
         for i in range (0,len(remClasses)):
             d=remClasses[i]
             c=remClasses[i].replace(SEPr,")")
@@ -139,7 +142,7 @@ def processHistory(History,remClasses):
             d=d.replace(SEPr,"")
             d=d.replace(SEPl,"")
             d=d.replace(SEPi," ")
-            remClasses[i]=c+"\n"+d
+            remClasses[i]=c+"\n\n"+d+"\n"
         return (History,remClasses)
 
 
