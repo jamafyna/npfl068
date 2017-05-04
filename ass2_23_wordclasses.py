@@ -114,33 +114,37 @@ def mergetwoclasses(d,e,minI):
         classes_relevant.remove(e) 
         return 0
 
-def processHistory(History,remClasses={}):
+def processHistory(History,remClasses):
         """ Returns the another form of history --- the new class of classes a and b is named (a,b). If remClasses is given, returns also members of remaining classes.
         """
-        for i in range(0,len(Hist)-1):
+        for i in range(0,len(History)-1):
                 h=History[i].split('\t')
                 old=h[4] # item in History  has this form: [d+"\t"+e+"\t>\t"+d+"\t"+"("d+","+e")"], so h[4] is the more importent class (its name remains)
                 old=h[5] # the name of the new class which should be used instead of one of names of the classes
-                for j in range(i+1,len(Hist)):
+                for j in range(i+1,len(History)):
                         temp=History[j]
                         History[j]=temp.replace(" "+h[4].strip()+" "," "+h[5].strip()+" ")
-                for c in remClasses: #DEBUG:toto chce ještě zlepšit!!!!!!!!!!
-                    if c==h[4].strip(): 
-                        c=h[5]
-                        print("DEBUG:true in remClasses, c:",c)
+                for j in range(0,len(remClasses)): #DEBUG:toto chce ještě zlepšit!!!!!!!!!!
+                    c=remClasses[j]# c=remClasses[j].replace(h[4].strip(),h[5].strip())
+                    if (c.strip())==(h[4].strip()): 
+                        remClasses[j]=h[5].strip()
         for i in range(0,len(History)):
             t=History[i].split('\t')
-            u5=t[5].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,",") # back to readable form
-            u1=t[1].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,",") # back to readable form
-            u2=t[2].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,",") # back to readable form
-           # u=u.replace(SEPr,")")
-           # u=u.replace(SEPi,",")
+            u5=t[5].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,"+") # back to readable form
+            u1=t[1].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,"+") # back to readable form
+            u2=t[2].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,"+") # back to readable form
             History[i]=u1+'\t'+u2+'\t'+'-->'+'\t'+u5
-            print(u1+'\t'+u2+'\t'+'-->'+'\t'+u5)
-        for c in remClasses:
-            c=c.replace(SEPr,"")
-            c=c.replace(SEPl,"")
-            c=c.replace(SEPi,"")
+         #   print(u1+'\t'+u2+'\t'+'-->'+'\t'+u5)
+        for i in range (0,len(remClasses)):
+            d=remClasses[i]
+            c=remClasses[i].replace(SEPr,")")
+            c=c.replace(SEPl,"(")
+            c=c.replace(SEPi,"+")
+            d=d.replace(" ","")
+            d=d.replace(SEPr,"")
+            d=d.replace(SEPl,"")
+            d=d.replace(SEPi," ")
+            remClasses[i]=c+"\n"+d
             print(c)
         return (History,remClasses)
 
@@ -192,13 +196,15 @@ while len(classes_relevant)>finalcount:
         mergetwoclasses(c1,c2,minloss)
 
 # writing results to the file
-if finalcount==1:f=open("results-23-all_"+sys.argv[1]+".txt",'wt')
-else:f=open("results-23-"+str(finalcount)+"_"+sys.argv[1]+".txt",'wt')
+if finalcount==1:f=open("results-23-all"+"-"+str(task)+"_"+sys.argv[1]+".txt",'wt')
+else:f=open("results-23-"+str(finalcount)+"-"+str(task)+"_"+sys.argv[1]+".txt",'wt')
 
 (History,Cl)=processHistory(Hist,classes_relevant)
-for h in History: f.write(h+'\n')
-for c in Cl: print(c)
-
+f.write("HISTORY OF MERGING\n")
+for i in range(0,len(History)): f.write('\nmerge'+(str(i+1))+"\n"+History[i]+'\n')
+if finalcount!="1":
+    f.write("\nFINAL CLASSES:\n")
+    for i in range(0,len(Cl)): f.write("\nclass "+str(i+1)+":\n"+Cl[i])
 f.close()
 
 
