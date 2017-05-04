@@ -65,12 +65,10 @@ def getclassestomerge():
         minI=float("inf")
         for (d,e) in itertools.combinations(classes_relevant,2):
                 temp=getlossI(d,e)
-                if (d=="case" and e=='subject'):print("DEBUG:",d,e,temp) 
                 if minI>temp: 
                     minI=temp
                     c1=d
                     c2=e
-        print("DEBUG: minimal loss:",minI," classes: ",c1," ",c2)
         return (c1,c2,minI)
 
 def mergetwoclasses(d,e,minI):
@@ -78,7 +76,6 @@ def mergetwoclasses(d,e,minI):
         Do merge of two given classes, actualize all structures
         """
         #merge e into d
-        print("DEBUG: d: ",d," e: ",e)
         # merge bigrams of classes
         # actualization of count of bigrams
         for l in leftneib[e]:
@@ -110,7 +107,6 @@ def mergetwoclasses(d,e,minI):
         del leftneib[e] #možná není potřeba, časem ověřit
         del rightneib[e] #možná není potřeba, časem ověřit
         Hist.append("Minimal loss: "+str(minI)+"\t "+d+" \t"+e+" \t>\t "+d+" \t "+SEPl+" "+d+" "+SEPi+" "+e+" "+SEPr)
-        print(d+"+"+e+"->"+d)
         classes_relevant.remove(e) 
         return 0
 
@@ -124,8 +120,8 @@ def processHistory(History,remClasses):
                 for j in range(i+1,len(History)):
                         temp=History[j]
                         History[j]=temp.replace(" "+h[4].strip()+" "," "+h[5].strip()+" ")
-                for j in range(0,len(remClasses)): #DEBUG:toto chce ještě zlepšit!!!!!!!!!!
-                    c=remClasses[j]# c=remClasses[j].replace(h[4].strip(),h[5].strip())
+                for j in range(0,len(remClasses)): 
+                    c=remClasses[j]# 
                     if (c.strip())==(h[4].strip()): 
                         remClasses[j]=h[5].strip()
         for i in range(0,len(History)):
@@ -134,7 +130,6 @@ def processHistory(History,remClasses):
             u1=t[1].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,"+") # back to readable form
             u2=t[2].replace(SEPl,"(").replace(SEPr,")").replace(SEPi,"+") # back to readable form
             History[i]=u1+'\t'+u2+'\t'+'-->'+'\t'+u5
-         #   print(u1+'\t'+u2+'\t'+'-->'+'\t'+u5)
         for i in range (0,len(remClasses)):
             d=remClasses[i]
             c=remClasses[i].replace(SEPr,")")
@@ -145,7 +140,6 @@ def processHistory(History,remClasses):
             d=d.replace(SEPl,"")
             d=d.replace(SEPi," ")
             remClasses[i]=c+"\n"+d
-            print(c)
         return (History,remClasses)
 
 
@@ -189,7 +183,7 @@ Hist=[] # array of history
 
 # --------------------computation -------------------------------------------
 
-print("MI of the whole text: ",getI())
+I=getI()
 
 while len(classes_relevant)>finalcount:
         (c1,c2,minloss)=getclassestomerge()
@@ -199,6 +193,7 @@ while len(classes_relevant)>finalcount:
 if finalcount==1:f=open("results-23-all"+"-"+str(task)+"_"+sys.argv[1]+".txt",'wt')
 else:f=open("results-23-"+str(finalcount)+"-"+str(task)+"_"+sys.argv[1]+".txt",'wt')
 
+f.write("MI of the whole text: "+str(I)+"\n")
 (History,Cl)=processHistory(Hist,classes_relevant)
 f.write("HISTORY OF MERGING\n")
 for i in range(0,len(History)): f.write('\nmerge'+(str(i+1))+"\n"+History[i]+'\n')

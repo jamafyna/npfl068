@@ -1,0 +1,164 @@
+\documentclass[12pt, a4paper]{report}
+\setlength\textwidth{160mm}
+\setlength\textheight{247mm}
+\setlength\oddsidemargin{0mm}
+\setlength\evensidemargin{15mm}
+\setlength\topmargin{0mm}
+\setlength\headsep{0mm}
+\setlength\headheight{0mm}
+%%%%%%%%%%%
+\usepackage[czech]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{ulem}
+\usepackage{bbold}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{indentfirst}    %%% zaveď odsazení 1. odstavce
+\usepackage{multicol}
+% %%%%%%%%%%%%%%
+% %sets
+% \def\eset{\emptyset}
+% \def\seq{\subseteq}
+ \def\N{\mathbb{N}}
+ \def\Z{\mathbb{Z}}
+\def\Q{\mathbb{Q}}
+ \def\Lra{\Letfrightarrow}
+% %logic
+ \def\E{\exists}
+ \def\F{\forall}
+ \def\imp{\Rightarrow}
+ \def\and{\wedge}
+ \def\or{\vee}
+ \def\eqv{\Leftrightarrow}
+ \def\bimp{\Leftarrow}
+\theoremstyle{remark}
+\newtheorem{prikl}{Příklad}
+\newcommand{\calP}[0]{
+\mathcal{P}
+}
+\newcommand{\seq}[0]{
+\subseteq
+}
+
+ \def\obrazek#1#2{
+% 	\begin{figure}[h!]
+ %		\setlength\fboxsep{0pt}
+ %		\setlength\fboxrule{1.5pt}
+% \begin{centerline}
+%\begin{minipage}[0.45]
+\begin{center}
+ 		\includegraphics[width=#2\textwidth]{#1}%[scale=0.5]%width=0.5\textwidth]
+\end{center}
+%\end{minipage}
+ %               \end{centerline}
+ %		%\caption{#2}
+ %	\end{figure}
+ }
+
+\begin{document}
+\section*{1. část úkolu - Entropy of a Text}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\noindent
+
+%\includegraphics{img-cz-chars.png}
+
+\subsection*{CZ---Messing words}
+S rostoucí pravděpodobností záměny slov klesá entropie, která se pohybuje v rozmezí asi 4,75 a 4,63. 
+
+S rostoucí pravděpodobností záměny rostl počet unikátních bigramů v textu a také bigramů vyskytujících se pouze jedenkrát.
+Dále klesl výskyt nejčetnějšího bigramu \uv{že}. Tento pokles by měl spíše snížit entropii, neboť bigram \uv{nove-slovo že} v původním textu nejspíše neexistoval (pokud je text spíše pravopisně správně), tedy je velká šance, že bude unikátní, obdobně \uv{~,~nove-slovo} bude s velkou pravděpodobností unikátní bigram, neboť \uv{nove-slovo} bude jedno slovo z  42826 slov. Zároveň prvních 20 nejčastějších slov původního textu tvoří asi čtvrtinu textu (55120 výskytů dohromady),jejich počet se zvyšující se pravděpodobností záměny klesá, což by mělo opět snížit entropii, neboť jde o interpunkční znaménka a předložky, tedy oba nové bigramy by měly být nejčastěji unikátní, což potvrzuje i celkový nárůst unikátních bigramů. Zvýšení průměrné délky slova také ukazuje, že se častěji nahradily předložky a interpunkční znaménka za delší slova (např. slova plnovýznamová).
+Oproti tomu se zvýší počet různých slov vyskytujících se bezprostředně po nějčastějších slovech, tato změna by měla entropii naopak drobně zvýšit. 
+
+Celkově entropie nového textu klesla oproti původnímu textu, ale ne nijak prudce.
+
+
+
+\subsection*{EN---Messing words}
+S rostoucí pravděpodobností záměny rostla entropie. Tedy náhodná záměna slov zhoršila předpovídatelnost textu. Velmi se snížil počet slov vyskytujících se pouze jedenkrát (pro původní text: 3811, pro text se změnou 10 \%: 417), což mohlo zvýšit entropii, neboť pokud se dané slovo vyskytuje pouze jednou, je jednoznačné přiřazení následníka. Stejně jako v češtině se zvýšil počet různých slov vyskytujících se bezprostředně po nejčastějších slovech.
+
+
+\subsection*{CZ, EN --- Messing chars}
+S rostoucí pravděpodobností záměny znaku klesá entropie.
+Záměnou znaku vzniká často nové slovo, obzvlášť ve vícepísmenných slovech, tedy vznikne řada nových slov, z nichž jeden bigram přispěje do entropie nulou. Nově vzniklý text bude snáze předpovídatelný.  
+
+\
+
+\
+
+\
+
+
+
+
+\
+
+\
+
+\
+
+
+
+
+
+
+\begin{multicols}{2}
+\obrazek{img-cz-words.png}{0.5}
+\columnbreak
+\obrazek{img-en-words.png}{0.5}
+\end{multicols}
+\begin{multicols}{2}
+\obrazek{img-cz-chars.png}{0.45}
+\columnbreak
+\obrazek{img-en-chars.png}{0.45}
+\end{multicols}
+
+
+\subsection*{Porovnání obou textů}
+Anglický text má větší entropii než český, tedy jazykový model pro angličtinu by hůře předpovídal následující slovo než pro češtinu. Oba texty obsahují přibližně stejný počet slov, anglický text obsahuje 4.5 krát méně různých slov a dvakrát méně různých bigramů, vyšší počet různých slov pro češtinu je ovlivněn např. skloňováním. Vyšší entropie anglického textu může být způsobena právě menším počtem různých slov - kdyby na každé slovo připadal větší počet možných následníků. 
+
+Čeština má nepatrně větší průměrnou délku slov, tedy při záměně znaků má větší šanci, že změna zasáhne více slov. Dále čeština obsahuje více různých znaků (117 oproti 74), tedy ještě snižuje šanci, že budou vznikat stejná nová slova.
+
+\subsection*{Cvičení sloučení textů}
+Označím $E$ entropii obou textů a $N_1,N_2$ počet slov původních textů. Předpokládám, že podmíněnou pravděpodobnost budu určovat podle vzorečku: $$p(w_i|w_{i-1})=c_2(w_{i-1},w_i)/c_1(w_{n})$$ a pravděpodobnost $p(w_{i-1},w_{i})$ podle vzorečku: $$p(w_{i-1},w_{i})=c(w_{i-1},w_{i})/(N-1).$$ Konce textu nebudu nijak označovat, tedy počet bigramů bude o 1 menší než počet slov. Pak platí, že 
+$$ E_{new}= E(\frac{N_1-1}{N_1+N_2-1}+\frac{N_2-1}{N_1+N_2-1}))+\frac{1}{N_1+N_2-1}\log_2{\frac{1}{c(w_{2,1})}}. $$
+Poslední člen značí nový bigram, který vznikl sloučením obou textů a je tedy unikátní. $c(w_n)$ značí počet výskytů posledního slova prvního textu v prvním textu. Daný výraz se dá upravit na
+$$ E+\frac{E-\log_2(c(w_{n}))}{N_1+N_2-1}. $$
+Tedy podmíněná entropie nového textu se bude od nové lišit o $\frac{E-\log_2(c(w_{n}))}{N_1+N_2-1}$, tedy závisí na četnosti posledního slova prvního textu. Pokud bude $\log_2(c(w_{n}))$ menší než $E$, entropie nového textu bude větší.
+
+\subsection*{Poznámky}
+Podrobné výsledky v souborech cz.txt, en.txt.
+Výsledky vypisuje program first.py na standardní výstup, spouštět s parametrem --- zpracovávaný text.
+
+
+\section*{2. část úkolu - Cross Entropy and Language Modeling}
+
+Nejprve jsem určila parametry $l_0, l_1, l_2, l_3$ pomocí EM algoritmu, za požadovanou přesnost jsem zvolila 0.001. Em algoritmus potřeboval pro dosažení požadované přesnosti 6 iterací pro český text a 9 iterací pro anglický text.
+
+Při určení vyhlazovacích parametrů z trénovacích dat vyšel třetí parametr (parametr odpovídající trigramům) 1 a zbylé 0. Což je očekávaný výsledek, jelikož algoritmus se snaží minimalizovat entropii nového pravděpodobnostního rozdělení, tato entropie však bude nejmenší, pokud nové pravděpodobnostní rozdělení bude odpovídat pravěpodobnostnímu rozdělení pro trigramy, tedy když $\lambda_3=1$. Z tohoto důvodu musíme na určení parametrů používat jiná data než trénovací.
+
+
+\begin{multicols}{2}
+\obrazek{img-cz-reduction.png}{0.5}
+\columnbreak
+\obrazek{img-en-reduction.png}{0.5}
+\end{multicols}
+\
+\obrazek{img-cz-scaling.png}{1}
+\obrazek{img-en-scaling.png}{1}
+Při škálování parametrů (grafy Scaling parameters) bylo v obou jazycích zjištěno, že se zvyšováním trigramového parametru roste křížová entropie, tedy tato změna není vhodná, dostali bychom horší model, než máme. Se snižováním trigramového parametru (grafy Reduction) sice nepatrně entropie klesá, tedy nově získané modely jsou lepší než ty původní, ale změna je velmi nepatrná (max. o~2~desetiny). To jen potvrzuje, že již máme poměrně vyhovující model.
+
+\obrazek{img-cz-coverage.png}{1}
+\obrazek{img-en-coverage.png}{1}
+
+
+\subsection*{Porovnání obou jazyků}
+Pro český text se dává nejvyšší váha unigramům (0.44). Bigramům a uniformnímu rozdělení se přiřazuje podobná váha (0.25), nejhorší jsou trigramy, jejichž váha je téměř zanedbatelná. Zatímco anglický text preferuje bigramy (0.5), poté unigramy (0.26), a dále preferuje trigramy před uniformním rozdělením. Důvodem bude to, že čeština obsahuje daleko více různých bigramů než angličtina a tedy češtině se vyplatí mít model sestavený spíše z unigramů než z bigramů, angličtině naopak. Dále v angličtině se bude vyskytovat méně různých trigramů než v češtině.
+
+Křížová entropie je v češtině vyšší než v angličtině, tedy model pro angličtinu bude přesnější než model pro češtinu. Z toho by se dalo říci, že angličtina je lépe předpovídatelná (nebo testovací data více odpovídala trénovacím a heldout datům). Toto potvrzuje i graf pokrytí (Coverage graph), který ukazuje, že téměř všechna slova z testovacích dat již byla viděna v~trénovacích datech, zatímco v češtině bylo viděno $80-87 \%$. Větší rozdíl je ještě u~bigramů, kdy v češtině je v~trénovacích datech pokryto cca $30-45 \%$ testovacích dat, zatímco v angličtině $70-80 \%$. Další výsledek potvrzující, že angličtina má méně různých trigramů, je cca $35-45\%$ pokrytí, zatímco u češtiny je již malé ($7-20\%$).
+
+\subsection*{Poznámky}
+Celkové výsledky jsou uloženy v souborech 2-en.txt, 2-cz.txt. Program s názvem second.py se spouští s parametrem --- vstupní text.
+
+\end{document}
