@@ -10,8 +10,10 @@
 \usepackage[czech]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage{ulem}
+%\usepackage{ulem}
+%\usepackage{tabular}
 \usepackage{bbold}
+\usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{indentfirst}    %%% zaveď odsazení 1. odstavce
@@ -28,8 +30,8 @@
  \def\E{\exists}
  \def\F{\forall}
  \def\imp{\Rightarrow}
- \def\and{\wedge}
- \def\or{\vee}
+ %\def\and{\wedge}
+% \def\or{\vee}
  \def\eqv{\Leftrightarrow}
  \def\bimp{\Leftarrow}
 \theoremstyle{remark}
@@ -59,9 +61,133 @@
 \begin{document}
 \section*{1. část úkolu - Best Friends}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\noindent
+Ze vzorečku pro počítání PMI $\log_2{\frac{P_2(a,b)}{P(a)P(b)}}$ vidíme, že zda bude hodnota PMI kladná nebo záporná závisí na poměru ${P_2(a,b)}$ a ${P(a)P(b)}$. Pokud ${P(a)P(b)}$ bude větší než ${P_2(a,b)}$ (tj. $a$ i $b$ se vyskytují v textu hodně, zatímco spolu v bigramu se vyskytují málo), tak bude PMI záporná. Vzoreček PMI lze upravit také na  $\log_2{\frac{P_2(a/b)}{P(a)}}$, z čehož můžeme získat ještě jeden pohled --- čím více se vyskytuje $a$ po $b$, tím větší je PMI, tedy pokud bude $P(a/b)$ vyšší než $P(a)$, tak bude PMI kladná, a pokud nižší, tak bude PMI záporná.
 
+
+\subsection*{Výsledky}
+
+
+
+Je vidět, že pro bigramy mají nejvyšší PMI ustálená slovní spojení, což koresponduje s výše uvedeným pozorováním, že čím vyšší závislost slova na jeho předchůdci, tím vyšší PMI.
+Čeština i angličtina mají srovnatelné hodnoty PMI.
+
+Nejnižší PMI (kolem -8) mají slova, která se k sobě nejspíše dostala chybou (např. \uv{the ,}, \uv{of .}, \uv{, .}, \uv{na .}) nebo vznikla velmi neobvyklým spojením.
+
+Pro distant words vidíme, že mezi prvních 20 s nejvyšší PMI se dostalo několik dvojic, které obsahují dvakrát stejné slovo, což bude způsobeno tím, že se toto slovo vyskytuje v dané vzdálenosti vícekrát. Toto pozorování se shoduje s běžnou praxí, neboť o tématu se zmiňujeme vícekrát v části textu.
+
+Také pro distant words byly některé hodnoty PMI záporné, opět podobně jako v předchozím případě (\uv{2 jsem}, \uv{varieties organs}).
+\begin{table}[h!]
+\begin{tabular}{lll}
+         PMI & první slovo & druhé slovo \\
+\toprule
+14.169370473805218 & La & Plata \\
+14.031866950055282 & Asa & Gray \\
+13.362015551747612 & Fritz & Muller \\
+13.332869206088096 & worth & while \\
+13.262479878196698 & faced & tumbler \\
+13.216898843887803 & lowly & organised \\
+13.110476784751649 & Malay & Archipelago \\
+13.053893256385281 & shoulder & stripe \\
+12.914556574776391 & Great & Britain \\
+12.847442378917854 & United & States \\
+12.525514284030493 & English & carrier \\
+12.401816559805589 & specially & endowed \\
+12.377363516081047 & Sir & J \\
+12.377363516081047 & branched & off \\
+12.362015551747612 & mental & qualities \\
+12.362015551747612 & de & Candolle \\
+12.344942038388671 & Galapagos & Archipelago \\
+12.32388042286084 & red & clover \\
+12.316927662219076 & self & fertilisation \\
+12.25183263399719 & systematic & affinity \\
+\end{tabular}
+\caption{Prvních 20 párů, angličtina}
+\end{table}
+
+\begin{table}[h!]
+\begin{tabular}{lll}
+         PMI & první slovo & druhé slovo \\
+\toprule
+14.28895040192613 & Hamburger & SV \\
+14.06244187211745 & Los & Angeles \\
+13.762881590258543 & Johna & Newcomba \\
+13.633598573313575 & Č. & Budějovice \\
+13.468967871540775 & série & ATP \\
+13.434410649504409 & turnajové & série \\
+13.428980853705104 & Tomáš & Ježek \\
+13.329922182982436 & Lidové & noviny \\
+13.271028493928867 & Lidových & novin \\
+13.06244187211745 & veřejného & mínění \\
+12.981521876733883 & teplota & minus \\
+12.955526668200939 & Ján & Čarnogurský \\
+12.955526668200939 & jaderné & zbraně \\
+12.897811170344651 & Milan & Máčala \\
+12.862877380235263 & lidských & práv \\
+12.708433806236165 & společném & státě \\
+12.692492262367145 & akciových & společností \\
+12.625378066508606 & Pohár & UEFA \\
+12.615676665316313 & privatizačních & projektů \\
+12.603010253480152 & George & Bushe \\
+\end{tabular}
+\caption{Prvních 20 párů, čeština}
+\end{table}
+\begin{table}[h!]
+\begin{tabular}{lll}
+         PMI & první slovo & druhé slovo \\
+\toprule
+8.78870856533529 & dried & floated \\
+8.66317768325143 & La & Plata \\
+8.618783563892977 & floated & dried \\
+8.41019694208156 & eastern & Pacific \\
+8.38817063575156 & Asa & Gray \\
+8.329276946697991 & dried & germinated \\
+8.2846660599977 & avicularia & vibracula \\
+8.274135392505531 & dried & dried \\
+8.187804520745111 & shoulder & stripe \\
+8.187804520745111 & stripe & shoulder \\
+8.181719758284135 & floated & germinated \\
+8.163104080116787 & floated & floated \\
+8.136631868755595 & layer & hexagonal \\
+8.110636660222651 & survival & fittest \\
+8.068816484528025 & dried & days \\
+8.04762686269685 & Old & Worlds \\
+8.03168531882783 & heath & heath \\
+8.03168531882783 & dimorphic & trimorphic \\
+7.999128345005662 & geese & webbed \\
+7.997295187146707 & clover & clover \\
+\end{tabular}
+\caption{Prvních 20 distant words, angličtina}
+\end{table}
+
+\begin{table}[h!]
+\begin{tabular}{lll}
+         PMI & první slovo & druhé slovo \\
+\toprule
+9.826402582133674 & výher & výher \\
+9.107211689695445 & žel & žel \\
+8.922787118558016 & Bělehrad & Benfica \\
+8.871256817917935 & h & teplota \\
+8.826402582133674 & 13h & 13h \\
+8.797256236474158 & teplota & minus \\
+8.797256236474157 & Sandžaku & Sandžaku \\
+8.797256236474157 & Hamburger & SV \\
+8.797256236474157 & ODÚ & VPN \\
+8.756614251976812 & Petrof & Petrof \\
+8.659752712724222 & silniční & doprava \\
+8.55283750880771 & Atény & Benfica \\
+8.546294662940939 & 13h & zataženo \\
+8.518280286771343 & 13h & skoro \\
+8.475328141586795 & CIA & CIA \\
+8.456219318639091 & vychází & h \\
+8.449332933053851 & výher & IV \\
+8.427306626723853 & 13h & st \\
+8.427306626723853 & pořadí & výher \\
+8.418744613220428 & Los & Angeles \\
+\end{tabular}
+\caption{Prvních 20 distant words, čeština}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 %\includegraphics{img-cz-chars.png}
 \section*{2. část úkolu - Word Classes}
 

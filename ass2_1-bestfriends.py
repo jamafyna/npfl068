@@ -35,14 +35,17 @@ bigramcount=wordcount-1
 Pi={w : wordsuniq[w]/wordcount for w in wordsuniq} # Pi ... probability P(i)
 Pij={u : uniqbigrams[u]/bigramcount for u in uniqbigrams} # Pij ... joint probability  P(i,j), j is immediately after the word i
 
-#I=col.Counter({(u,v):math.log(Pij[u,v]/(Pi[u]*Pi[v]),2) for (u,v) in uniqbigrams if wordsuniq[u]>=LOW  and wordsuniq[v]>=LOW})
 I=col.Counter({(u,v):getPMI(u,v,Pij,Pi) for (u,v) in uniqbigrams if u not in wn10 and v not in wn10})
 
-print(I.most_common(20))
-print(I.most_common(-20)) #nevyžaduje, ale je fajn
+print("\nPOINTWISE MUTUAL INFORMATION FOR ALL THE POSSIBLE PAIRS (which appear 10 and more times), first 20 of them:")
+#for ((u,v),i) in I.most_common(20): print(i,'\t',u," ",v)
+for ((u,v),i) in I.most_common(20): print(i,'&',u,"&",v, '\\\\') # latex format to table
 
-#------------po sem to funguje, odtud si nejsem jistá
-
+f=open("results-pairs-all-"+sys.argv[1], 'wt')
+for ((u,v),i) in I.most_common():
+    f.write(str(i)+'\t'+str(u)+' '+str(v)+'\n')
+f.close()
+# -------------- for distant words ------------------------------
 
 distant=col.Counter() # distant[u,w]=c...this pair appears c times in text with distance 1-50
 for i in range (0,wordcount): # if there is no start and end token, it is the same to compute only one direction or both directions
@@ -54,24 +57,12 @@ for i in range (0,wordcount): # if there is no start and end token, it is the sa
 totalcount=sum(distant.values())
 Pdij={pair : distant[pair]/totalcount for pair in distant} # probability of distant words
 Idis=col.Counter({(u,v):getPMI(u,v,Pdij,Pi) for (u,v) in distant if u not in wn10 and v not in  wn10})
-#pozor na to, jestli mám správně Pi - jestli i ta se nemusí upravit, protože se  krajní slova používají jinak
-#----2.varianta, pro to, kdy beru oba směry explicitně
 
-# z hlediska psti a dal je jedno, zda pouzivame toto nebo vyse, protože v tomto bude každé slovo 2x, ale i 2x věší počet slov, tedy stejné výsledky
-I2dis=col.Counter()
-distant2=col.Counter()
-for i in range (0,wordcount):#měla jsem wordcount-1, ale to nedává smysl!
-    for j in range (1,DIST+1):
-        if(i-j>=0):
-            u=wordsdata[i-j]
-            w=wordsdata[i]
-            distant2[u,w]+=1
-        if(i+j<wordcount-1):
-            u=wordsdata[i+j]
-            w=wordsdata[i]
-            distant2[w,u]+=1
-totalcount2=sum(distant2.values())
-Pdij2={pair : distant2[pair]/totalcount2 for pair in distant2} # probability of distant words
-Idis2=col.Counter({(u,v):getPMI(u,v,Pdij2,Pi) for (u,v) in distant2 if u not in wn10 and v not in  wn10})
-print(Idis.most_common(20))
-print(Idis2.most_common(20)) 
+print("\nPOINTWISE MUTUAL INFORMATION FOR DISTANT WORDS, first 20")
+for ((u,v),i) in Idis.most_common(20): print(i,'&',u,"&",v, '\\\\') #latex table format
+#for ((u,v),i) in Idis.most_common(20): print(i,'\t',u," ",v)
+
+f=open("results-distance-all-"+sys.argv[1], 'wt')
+for ((u,v),i) in Idis.most_common():
+    f.write(str(i)+'\t'+str(u)+' '+str(v)+'\n')
+f.close()
