@@ -83,22 +83,38 @@ Hlavní otázkou bylo, jak vhodně reprezentovat třídy, aby bylo nalezení dvo
 Program jsem psala v jazyce Python3. Nechtěla jsem (nebavilo mě) přímo používat přesnou implementaci z přednášek, použila jsem tedy trochu jiné struktury, myšlenky ale zůstávají stejné. V programu jsem zejména využila hashtabulky vracející levé, resp. pravé, sousedy dané třídy a dvakrát CountTable uchovávající počet výskytů daných tříd, resp. bigramů tříd.  
 
 Program se spouští příkazem {\bf python3 ass2\_23\_wordclasses.py TEXT.ptg~1~param}, se třemi parametry, kde TEXT.ptg znamená text, který chceme zpracovat, ve formátu .ptg; 1 označuje, že spouštíme variantu pro slova a ne tagy; param značí počet zbývajících tříd, tedy 1 pro úplnou hierarchii slov a 15 pro sloučení do 15 tříd. 
+Výsledek poté vypíše do souboru results-23-*.txt, hvězdička nahrazuje dodané parametry. Kromě výsledné třídy/15 tříd vypisuje také průběh slučování, vč. minimal loss. Výslednou třídu pak ve formátu: {\it slova patřící do této včetně závorek značících postupné slučování --- nový řádek --- slova patřící do této třídy}.
 
 \subsection*{CZ}
-Při sloučení na 15 tříd mě zaujala třída skládající se ze spojek, tj. {\it  který, které, aby, ale, že}, obzvlášť že nejprve se sloučily třídy {\it který, které}. Tato třída vyšla hezky ukázkově. Naopak mě překvapilo, že čárka s tečkou zůstaly v samotných jednoprvkových třídách, automaticky bych čekala, že se sloučí, ale zde je možnost, že je rozdílnost dána velkým počátečním písmenem po tečce. Podobným překvapením je samostatná třída se spojkou {\it a}, zatímco spojka {\it i} byla sloučena poměrně brzy. Důvodem může být jiná četnost výskytu. Dále mi přijde pěkné průběžné sloučení tříd {\it byl + jsou, musí + bude, (za, u)+ do} do jedné.
+Při sloučení na 15 tříd mě zaujala třída skládající se ze spojek, tj. {\it  který, které, aby, ale, že}, obzvlášť že nejprve se sloučily třídy {\it který, které}. Tato třída vyšla hezky ukázkově. Naopak mě překvapilo, že čárka s tečkou zůstaly v samotných jednoprvkových třídách, automaticky bych čekala, že se sloučí, ale zde je možnost, že je rozdílnost dána velkým počátečním písmenem po tečce. Podobným překvapením je samostatná třída se spojkou {\it a}, zatímco spojka {\it i} byla sloučena poměrně brzy. Důvodem může být jiná četnost výskytu. Naopak očekávané mi přijdou pěkná průběžná sloučení tříd {\it byl + jsou, musí + bude, (za, u)+ do}.
 
 
 \subsection*{EN}
 
 Přijdou mi pěkná a výstižná sloučení tříd {\it may, cannot}, hned jako druhé slučování,  a dále  {\it must + can, is + are, if + when, most + many, would + will}.
 
-Zároveň mi přišlo zajímavé, že slučování tříd poměrně pěkně zachovává slovní druhy, např. při slučování do 15 tříd je třída 7 složena  z podstatných jmen, veškerá přídavná jména jsou ve třídě 3, třída 8 je složena z předložek.
+Zároveň mi přišlo zajímavé, že slučování tříd poměrně pěkně zachovává slovní druhy, např. při slučování do 15 tříd je třída 2 složena  z podstatných jmen, veškerá přídavná jména jsou ve třídě 6, třída 8 je složena z předložek.
 
 Celkově mi přišlo zajímavé, že slova s velkým počátečním písmenem na začátku mají tendenci slučovat se k sobě, což může být způsobeno téměř jistou tečkou (či jiným méně častým interpunkčním znaménkem) před těmito slovy.
 
 I v anglickém textu zůstaly tečce a čárce jejich vlastní třídy při slučování do 15 tříd, což může být způsobeno tím, že kontext kolem nich je různorodý a v souvislosti s tím, že slova s velkým počátečním písmenem se shlukují často k sobě, a tedy není výhodné ani sloučit tečku a čárku do jedné třídy. Nevhodnost sloučení tečky a čárky potvrzuje i skutečnost, že se do společné třídy dostanou až při posledním slučování, tedy sloučením všech posledních dvou tříd do jedné. Tato skutečnost mě velmi překvapila, protože před výsledkami (a zamyšlením) bych intuitivně čekala, že se velmi brzy sloučí do jedné třídy.
 
-\
+\section*{Tag Classes}
+Implementační část byla shodná s úlohou Word classes, akorát místo na slova se algoritmus pouštěl na tagy a místo na prvních 8000 slov se pouštěl na všechna data. Pro angličtinu algoritmus seběhl velmi rychle, neboť angličtina má menší počet různých tagů (anglický text obsahoval pouze 36 různých tagů). Český text obsahoval 677 různých tagů vyskytujících se alespoň pětkrát.
+
+\subsection*{EN}
+Očekávané sloučení je PRP\$ a DT, které proběhlo jako 10. merge, neboť přivlastňovací zájmena a DET se vyskytují ve stejném kontextu --- nejčastěji se použije přivlastňovací zájmeno, nebo DET a následuje nejčastěji podstatné jméno nebo přídavné jméno. 
+
+
+Dále mě zaujala třída ((JJ+JJS)+CD), sloučení JJ+JJS bylo opět očekávané, neboť v kontextu se nejčastěji bude vyskytovat člen před a podstatné jméno za. CD se k nim připojilo, neboť mají opět podobný kontext, v jakém se vyskytují (např. the one/best of them, my best/two friends, atd.).
+
+Další očekávané sloučení je NNS + NN, neboť podstatná jména jednotného a množného čísla se vyskytují v podobném kontextu, navíc angličtina nerozlišuje jiný tvar slovesa, příd. jména apod. dle čísla, s výjimkou třetí osoby u slovesa a přivlastňovacích zájmen. Přišlo mi zajímavé, že jakmile se sloučily třídy NNS + NN, sloučily se třídy VBZ + VBP a navíc minimal loss byla nižší než v předchozích 2 krocích, což svědčí o tom, že sloučení NNS + NN pomohlo. Tento výsledek je zároveň logický, neboť se částečně pomohl sjednotit kontext zleva --- tj. dogs(NNS) are(VBP) hungry vs. child(NN) is(VBZ) small. 
+
+Na rozdíl od zpracování slov ve 2. části úkolu, při slučování tagů se k sobě dostala interpunkční znaménka, v kroce 21 se sloučily třídy \{{: , .}\}.
+Naopak mi přišlo divné sloučení tříd NNPS + SYM, a to hned v druhém kroku, zde mi přišlo, že byl výsledek ovlivněn malou diverzitou členů těchto tříd (tag SYM měla pouze pravostranná závorka, NNPS bylo velmi časté u States (z United States)).
+
+\subsection*{CZ}
+
 
 \
 

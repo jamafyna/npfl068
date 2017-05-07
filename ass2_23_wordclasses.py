@@ -174,7 +174,8 @@ classes=col.Counter(wordsall) # initialization, starts with each word in its own
 
 bi_class=col.Counter([b for b in zip(wordsall[:-1],wordsall[1:])]) # all bigrams of classes in data, with count of their occurancy
 
-classes_relevant=[c for c in classes if classes[c]>=10] # classes_relevant...set of classes which can be merged (occures more than 10)
+if task=="1": classes_relevant=[c for c in classes if classes[c]>=10] # classes_relevant...set of classes which can be merged (occures more than 10)
+else: classes_relevant=[c for c in classes if classes[c]>=5] # classes_relevant...set of classes which can be merged (occures more than 5)
 
 leftneib={} # left neighbors of a given class, hashtable
 rightneib={} # right neighbors of a given class, hashtable
