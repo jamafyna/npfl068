@@ -66,7 +66,7 @@ Ze vzorečku pro počítání PMI $\log_2{\frac{P_2(a,b)}{P(a)P(b)}}$ vidíme, �
 
 \subsection*{Výsledky}
 
-
+Výsledky pro 20 dvojic s nejvyšší PMI jsou uvedeny v tabulkách, všechny výsledky pak v přiloženém souboru.
 
 Je vidět, že pro bigramy mají nejvyšší PMI ustálená slovní spojení, což koresponduje s výše uvedeným pozorováním, že čím vyšší závislost slova na jeho předchůdci, tím vyšší PMI.
 Čeština i angličtina mají srovnatelné hodnoty PMI.
@@ -240,54 +240,5 @@ Na rozdíl od zpracování slov ve 2. části úkolu, při slučování tagů se
 Naopak mi přišlo divné sloučení tříd NNPS + SYM, a to hned v druhém kroku, zde mi přišlo, že byl výsledek ovlivněn malou diverzitou členů těchto tříd (tag SYM měla pouze pravostranná závorka, NNPS bylo velmi časté u States (z United States)).
 
 \subsection*{CZ}
-
-
-\
-
-
-
-
-\
-
-\
-
-\
-
-
-
-
-
-
-
-\subsection*{Porovnání obou textů}
-Anglický text má větší entropii než český, tedy jazykový model pro angličtinu by hůře předpovídal následující slovo než pro češtinu. Oba texty obsahují přibližně stejný počet slov, anglický text obsahuje 4.5 krát méně různých slov a dvakrát méně různých bigramů, vyšší počet různých slov pro češtinu je ovlivněn např. skloňováním. Vyšší entropie anglického textu může být způsobena právě menším počtem různých slov - kdyby na každé slovo připadal větší počet možných následníků. 
-
-Čeština má nepatrně větší průměrnou délku slov, tedy při záměně znaků má větší šanci, že změna zasáhne více slov. Dále čeština obsahuje více různých znaků (117 oproti 74), tedy ještě snižuje šanci, že budou vznikat stejná nová slova.
-
-\subsection*{Cvičení sloučení textů}
-Označím $E$ entropii obou textů a $N_1,N_2$ počet slov původních textů. Předpokládám, že podmíněnou pravděpodobnost budu určovat podle vzorečku: $$p(w_i|w_{i-1})=c_2(w_{i-1},w_i)/c_1(w_{n})$$ a pravděpodobnost $p(w_{i-1},w_{i})$ podle vzorečku: $$p(w_{i-1},w_{i})=c(w_{i-1},w_{i})/(N-1).$$ Konce textu nebudu nijak označovat, tedy počet bigramů bude o 1 menší než počet slov. Pak platí, že 
-$$ E_{new}= E(\frac{N_1-1}{N_1+N_2-1}+\frac{N_2-1}{N_1+N_2-1}))+\frac{1}{N_1+N_2-1}\log_2{\frac{1}{c(w_{2,1})}}. $$
-Poslední člen značí nový bigram, který vznikl sloučením obou textů a je tedy unikátní. $c(w_n)$ značí počet výskytů posledního slova prvního textu v prvním textu. Daný výraz se dá upravit na
-$$ E+\frac{E-\log_2(c(w_{n}))}{N_1+N_2-1}. $$
-Tedy podmíněná entropie nového textu se bude od nové lišit o $\frac{E-\log_2(c(w_{n}))}{N_1+N_2-1}$, tedy závisí na četnosti posledního slova prvního textu. Pokud bude $\log_2(c(w_{n}))$ menší než $E$, entropie nového textu bude větší.
-
-\subsection*{Poznámky}
-Podrobné výsledky v souborech cz.txt, en.txt.
-Výsledky vypisuje program first.py na standardní výstup, spouštět s parametrem --- zpracovávaný text.
-
-
-\section*{2. část úkolu - Cross Entropy and Language Modeling}
-
-Nejprve jsem určila parametry $l_0, l_1, l_2, l_3$ pomocí EM algoritmu, za požadovanou přesnost jsem zvolila 0.001. Em algoritmus potřeboval pro dosažení požadované přesnosti 6 iterací pro český text a 9 iterací pro anglický text.
-
-Při určení vyhlazovacích parametrů z trénovacích dat vyšel třetí parametr (parametr odpovídající trigramům) 1 a zbylé 0. Což je očekávaný výsledek, jelikož algoritmus se snaží minimalizovat entropii nového pravděpodobnostního rozdělení, tato entropie však bude nejmenší, pokud nové pravděpodobnostní rozdělení bude odpovídat pravěpodobnostnímu rozdělení pro trigramy, tedy když $\lambda_3=1$. Z tohoto důvodu musíme na určení parametrů používat jiná data než trénovací.
-
-\subsection*{Porovnání obou jazyků}
-Pro český text se dává nejvyšší váha unigramům (0.44). Bigramům a uniformnímu rozdělení se přiřazuje podobná váha (0.25), nejhorší jsou trigramy, jejichž váha je téměř zanedbatelná. Zatímco anglický text preferuje bigramy (0.5), poté unigramy (0.26), a dále preferuje trigramy před uniformním rozdělením. Důvodem bude to, že čeština obsahuje daleko více různých bigramů než angličtina a tedy češtině se vyplatí mít model sestavený spíše z unigramů než z bigramů, angličtině naopak. Dále v angličtině se bude vyskytovat méně různých trigramů než v češtině.
-
-Křížová entropie je v češtině vyšší než v angličtině, tedy model pro angličtinu bude přesnější než model pro češtinu. Z toho by se dalo říci, že angličtina je lépe předpovídatelná (nebo testovací data více odpovídala trénovacím a heldout datům). Toto potvrzuje i graf pokrytí (Coverage graph), který ukazuje, že téměř všechna slova z testovacích dat již byla viděna v~trénovacích datech, zatímco v češtině bylo viděno $80-87 \%$. Větší rozdíl je ještě u~bigramů, kdy v češtině je v~trénovacích datech pokryto cca $30-45 \%$ testovacích dat, zatímco v angličtině $70-80 \%$. Další výsledek potvrzující, že angličtina má méně různých trigramů, je cca $35-45\%$ pokrytí, zatímco u češtiny je již malé ($7-20\%$).
-
-\subsection*{Poznámky}
-Celkové výsledky jsou uloženy v souborech 2-en.txt, 2-cz.txt. Program s názvem second.py se spouští s parametrem --- vstupní text.
 
 \end{document}
